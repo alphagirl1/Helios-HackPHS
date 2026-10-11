@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Helios Dashboard</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Inter font for the HELIOS wordmark -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;900&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+        body {
+            background: #f7f1e3;
+            color: #243047;
+            font-family: "Inter", system-ui, -apple-system, sans-serif;
+        }
+
+        .grid-blur {
+            background-color: rgba(255, 252, 245, 0.72);
+        }
+
+        main > div:nth-child(1) .text-white {
+            color: #9b3f2f !important;
+        }
+
+        main > div:nth-child(1) {
+            outline: 3px solid #d97745;
+            outline-offset: -1px;
+        }
+
+        main > div:nth-child(2) {
+            outline: 3px solid #c47b1b;
+            outline-offset: -1px;
+        }
+
+        main > div:nth-child(3) {
+            outline: 3px solid #c47b1b;
+            outline-offset: -1px;
+        }
+
+        main + section > div {
+            outline: 3px solid #c47b1b;
+            outline-offset: -1px;
+        }
+
+        main + section + section > div {
+            outline: 3px solid #c47b1b;
+            outline-offset: -1px;
+        }
+
+        main + section + section + footer > div {
+            outline: 3px solid #c47b1b;
+            outline-offset: -1px;
+        }
+
+        main > div:nth-child(1) #volts {
+            color: #4169a1 !important;
+        }
+
+        main > div:nth-child(1) #amps {
+            color: #4169a1 !important;
+        }
+
+        main > div:nth-child(1) #lux {
+            color: #4169a1 !important;
+        }
+
+        main > div:nth-child(3) strong {
+            color: #5e6eb0 !important;
+        }
+
+        [class*="bg-slate-9"],
+        [class*="bg-slate-950"],
+        [class*="bg-slate-8"] {
+            background-color: #fffaf0 !important;
+        }
+
+        [class*="border-slate-"] {
+            border-color: #ded4c2 !important;
+        }
+
+        [class*="text-slate-"] {
+            color: #687386 !important;
+        }
+
+        .text-white,
+        .text-slate-200 {
+            color: #243047 !important;
+        }
+
+        [class*="text-amber-"] {
+            color: #a86412 !important;
+        }
+
+        #history-total,
+        #history-window,
+        #history-samples {
+            color: #4169a1 !important;
+        }
+
+        .bg-amber-500 {
+            background-color: #c47b1b !important;
+        }
+
+        .bg-amber-500\/10 {
+            background-color: #f5e6c9 !important;
+        }
+
+        .border-amber-500\/20 {
+            border-color: #e7c78f !important;
+        }
+
+        .bg-emerald-950\/80 {
+            background-color: #dcefe7 !important;
+        }
+
+        .text-emerald-400 {
+            color: #087653 !important;
+        }
+
+        .bg-red-950\/80 {
+            background-color: #f8dfdc !important;
+        }
+
+        .text-red-400 {
+            color: #b43f35 !important;
+        }
+
+        .brand-logo {
+            width: 64px;
+            height: 64px;
+            object-fit: contain;
+            flex: 0 0 auto;
+        }
+
+        .helios-wordmark {
+            font-family: "Inter", system-ui, sans-serif;
+        }
+
+        .system-status {
+            position: absolute;
+            right: 3rem;
+            top: 1.5rem;
+        }
+
+        .site-subtitle {
+            position: absolute;
+            right: 3rem;
+            top: 4.9rem;
+            text-align: right;
+        }
+
+        .brand-lockup {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            gap: 0.25rem;
+        }
+
+        .site-header {
+            min-height: 122px;
+        }
+
+        @media (max-width: 767px) {
+            .site-subtitle {
+                right: 1.5rem;
+            }
+        }
+
+        .quadrant-bright {
+            animation: quadrant-flash 0.45s ease-in-out infinite alternate;
+            border: 3px solid #9b3f2f !important;
+            box-shadow: 0 0 0 3px #f08a45 !important;
+            color: #4a2118 !important;
+            font-weight: 900 !important;
+            outline: 3px solid #f08a45;
+            outline-offset: 2px;
+            z-index: 20 !important;
+        }
+
+        .shadow-quadrant {
+            border: 2px solid #b58b5a !important;
+        }
+
+        .shadow-quadrant.quadrant-bright {
+            border: 3px solid #9b3f2f !important;
+        }
+
+        @keyframes quadrant-flash {
+            from {
+                background: linear-gradient(
+                    135deg,
+                    #fff1a8 0%,
+                    #ffbd52 100%
+                ) !important;
+                transform: scale(1.03);
+            }
+
+            to {
+                background: linear-gradient(
+                    135deg,
+                    #ff934f 0%,
+                    #e84f35 100%
+                ) !important;
+                transform: scale(1.09);
+            }
+        }
+
+        @keyframes active-quadrant-ring {
+            from {
+                box-shadow: 0 0 0 3px #f08a45 !important;
+            }
+
+            to {
+                box-shadow: 0 0 0 6px #e84f35 !important;
+            }
+        }
+
+        .shadow-quadrant.quadrant-bright {
+            animation:
+                quadrant-flash 0.45s ease-in-out infinite alternate,
+                active-quadrant-ring 0.45s ease-in-out infinite alternate;
+            border: 3px solid #9b3f2f !important;
+            outline: 3px solid #f08a45 !important;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col justify-between">
+
+    <!-- Header -->
+    <header
+        class="site-header relative w-full px-6 md:px-12 py-6 mb-8 border-b border-slate-800/60 flex flex-col items-center"
+    >
+        <div class="brand-lockup flex items-center gap-0">
+            <h1
+                class="helios-wordmark text-[4.5rem] font-bold tracking-wider text-amber-400"
+            >
+                HELI
+            </h1>
+
+            <img
+                class="brand-logo"
+                src="./helios_logo.png?v=2"
+                alt="O in HELIOS solar tracker wordmark"
+            >
+
+            <h1
+                class="helios-wordmark text-[4.5rem] font-bold tracking-wider text-amber-400"
+            >
+                S
+            </h1>
+        </div>
+
+    </header>
+
+    <!-- Main Dashboard -->
+    <main class="w-full max-w-5xl mx-auto px-6 md:px-0 grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 flex-grow">
+
+        <!-- Power Generation Card -->
+        <div
+            class="md:col-span-2 bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6 flex flex-col justify-between grid-blur group hover:border-slate-700/60 transition-all duration-300"
+        >
+            <div>
+                <div class="flex justify-between items-center mb-4">
+                    <h3
+                        class="text-sm font-bold text-slate-700 uppercase tracking-normal"
+                    >
+                        Calculated Net Generation
+                    </h3>
+
+                </div>
+
+                <div class="flex items-baseline gap-2 mt-2">
+                    <span
+                        id="watts"
+                        class="text-7xl font-black text-white tracking-tighter"
+                    >
+                        0.00
+                    </span>
+
+                    <span
+                        class="text-3xl font-extrabold text-amber-400 tracking-wide"
+                    >
+                        W
+                    </span>
+                </div>
+            </div>
+
+            <!-- Electrical Measurements -->
+            <div
+                class="grid grid-cols-3 gap-4 mt-8 pt-6 border-t border-slate-800/60"
+            >
+                <div
+                    class="bg-slate-950/40 rounded-xl p-3 border border-slate-900/60 text-center"
+                >
+                    <p
+                        class="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1"
+                    >
+                        Voltage
+                    </p>
+
+                    <p
+                        id="volts"
+                        class="text-xl font-mono font-bold text-slate-200"
+                    >
+                        0.0
+                    </p>
+                </div>
+
+                <div
+                    class="bg-slate-950/40 rounded-xl p-3 border border-slate-900/60 text-center"
+                >
+                    <p
+                        class="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1"
+                    >
+                        Current
+                    </p>
+
+                    <p
+                        id="amps"
+                        class="text-xl font-mono font-bold text-slate-200"
+                    >
+                        0
+                    </p>
+                </div>
+
+                <div
+                    class="bg-slate-950/40 rounded-xl p-3 border border-slate-900/60 text-center"
+                >
+                    <p
+                        class="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1"
+                    >
+                        Luminance
+                    </p>
+
+                    <p
+                        id="lux"
+                        class="text-xl font-mono font-bold text-amber-400"
+                    >
+                        0
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shadow Alignment Card -->
+        <div
+            class="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6 flex flex-col items-center justify-between grid-blur hover:border-slate-700/60 transition-all duration-300"
+        >
+            <div class="w-full flex justify-between items-center mb-4">
+                <h3
+                    class="text-sm font-bold text-slate-700 uppercase tracking-normal"
+                >
+                    Shadow Alignment
+                </h3>
+
+            </div>
+
+            <!-- Four-Sensor Grid -->
+            <div
+                class="relative w-44 h-44 bg-slate-950/80 rounded-2xl p-3 border border-slate-900 flex items-center justify-center"
+            >
+                <div
+                    class="absolute inset-y-4 left-1/2 w-[3px] bg-slate-800/80 -translate-x-1/2 rounded-full z-10"
+                ></div>
+
+                <div
+                    class="absolute inset-x-4 top-1/2 h-[3px] bg-slate-800/80 -translate-y-1/2 rounded-full z-10"
+                ></div>
+
+                <div class="grid grid-cols-2 gap-2 w-full h-full relative z-0">
+
+                    <div
+                        id="q1"
+                        class="shadow-quadrant rounded-xl flex flex-col items-center justify-center text-[10px] font-mono font-bold text-slate-400 bg-slate-900/50"
+                    >
+                        <span>LDR 1</span>
+                        <span
+                            class="text-[9px] opacity-60 mt-0.5"
+                            id="v1"
+                        >
+                            0
+                        </span>
+                    </div>
+
+                    <div
+                        id="q2"
+                        class="shadow-quadrant rounded-xl flex flex-col items-center justify-center text-[10px] font-mono font-bold text-slate-400 bg-slate-900/50"
+                    >
+                        <span>LDR 2</span>
+                        <span
+                            class="text-[9px] opacity-60 mt-0.5"
+                            id="v2"
+                        >
+                            0
+                        </span>
+                    </div>
+
+                    <div
+                        id="q3"
+                        class="shadow-quadrant rounded-xl flex flex-col items-center justify-center text-[10px] font-mono font-bold text-slate-400 bg-slate-900/50"
+                    >
+                        <span>LDR 3</span>
+                        <span
+                            class="text-[9px] opacity-60 mt-0.5"
+                            id="v3"
+                        >
+                            0
+                        </span>
+                    </div>
+
+                    <div
+                        id="q4"
+                        class="shadow-quadrant rounded-xl flex flex-col items-center justify-center text-[10px] font-mono font-bold text-slate-400 bg-slate-900/50"
+                    >
+                        <span>LDR 4</span>
+                        <span
+                            class="text-[9px] opacity-60 mt-0.5"
+                            id="v4"
+                        >
+                            0
+                        </span>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Mount Angle Card -->
+        <div
+            class="md:col-span-3 bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6 grid-blur hover:border-slate-700/60 transition-all duration-300"
+        >
+            <div class="flex justify-between items-center mb-5">
+                <h3
+                    class="text-sm font-bold text-slate-700 uppercase tracking-normal"
+                >
+                    Live Mount Angles
+                </h3>
+
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div class="bg-slate-950/50 rounded-xl p-4 border border-slate-800/60">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">
+                            Pan / Azimuth
+                        </span>
+                        <strong id="pan-angle" class="text-amber-400 font-mono text-lg">
+                            90.0°
+                        </strong>
+                    </div>
+                    <div class="h-3 rounded-full bg-slate-800 overflow-hidden">
+                        <div
+                            id="pan-bar"
+                            class="h-full rounded-full bg-amber-500 transition-all duration-200"
+                            style="width: 50%"
+                        ></div>
+                    </div>
+                    <div class="flex justify-between mt-2 text-[9px] text-slate-600 font-mono">
+                        <span>0° LEFT</span>
+                        <span>180° RIGHT</span>
+                    </div>
+                </div>
+
+                <div class="bg-slate-950/50 rounded-xl p-4 border border-slate-800/60">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">
+                            Tilt / Elevation
+                        </span>
+                        <strong id="tilt-angle" class="text-amber-400 font-mono text-lg">
+                            90.0°
+                        </strong>
+                    </div>
+                    <div class="h-3 rounded-full bg-slate-800 overflow-hidden">
+                        <div
+                            id="tilt-bar"
+                            class="h-full rounded-full bg-amber-500 transition-all duration-200"
+                            style="width: 50%"
+                        ></div>
+                    </div>
+                    <div class="flex justify-between mt-2 text-[9px] text-slate-600 font-mono">
+                        <span>0° DOWN</span>
+                        <span>180° UP</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Real-Time Efficiency Chart -->
+    <section
+        class="w-full max-w-5xl mx-auto px-6 md:px-0"
+    >
+        <div class="bg-slate-900/30 border border-slate-800/50 rounded-2xl p-6 mb-8 grid-blur">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h3
+                    class="text-sm font-bold text-slate-700 uppercase tracking-normal"
+                >
+                    Real-Time Efficiency Timeline
+                </h3>
+            </div>
+
+        </div>
+
+        <div class="h-44">
+            <canvas id="wattChart"></canvas>
+        </div>
+        </div>
+    </section>
+
+    <!-- Energy History -->
+    <section
+        class="w-full max-w-5xl mx-auto px-6 md:px-0"
+    >
+        <div class="bg-slate-900/30 border border-slate-800/50 rounded-2xl p-6 mb-8 grid-blur">
+            <div class="flex flex-col sm:flex-row justify-between gap-4 mb-6">
+                <div>
+                    <h3 class="text-sm font-bold text-slate-700 uppercase tracking-normal">
+                        Energy Generation History
+                    </h3>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <label for="history-range" class="text-[10px] text-slate-500 uppercase font-bold">
+                        Time range
+                    </label>
+                    <select
+                        id="history-range"
+                        class="bg-slate-950/50 border border-slate-800/60 rounded-md px-2 py-1 text-xs text-slate-600"
+                    >
+                        <option value="1h">Last hour</option>
+                        <option value="6h">Last 6 hours</option>
+                        <option value="24h" selected>Last 24 hours</option>
+                        <option value="7d">Last 7 days</option>
+                        <option value="month">Last month</option>
+                        <option value="all">All time</option>
+                    </select>
+                    <select
+                        id="history-view"
+                        class="bg-slate-950/50 border border-slate-800/60 rounded-md px-2 py-1 text-xs text-slate-600"
+                    >
+                        <option value="cumulative" selected>Cumulative energy</option>
+                        <option value="average">Average by time of day</option>
+                    </select>
+                    <select
+                        id="time-of-day-range"
+                        class="hidden bg-slate-950/50 border border-slate-800/60 rounded-md px-2 py-1 text-xs text-slate-600"
+                    >
+                        <option value="full-day" selected>Full day</option>
+                        <option value="morning">Morning · 6 AM–12 PM</option>
+                        <option value="midday">Midday · 10 AM–3 PM</option>
+                        <option value="afternoon">Afternoon · 12–6 PM</option>
+                        <option value="evening">Evening · 5–10 PM</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+                <div class="rounded-lg border border-slate-800/60 bg-slate-950/30 p-3">
+                    <p class="text-[10px] text-slate-500 uppercase font-bold">Total since start</p>
+                    <p id="history-total" class="text-lg font-mono font-bold text-amber-400">0.000 Wh</p>
+                </div>
+                <div class="rounded-lg border border-slate-800/60 bg-slate-950/30 p-3">
+                    <p class="text-[10px] text-slate-500 uppercase font-bold">Selected window</p>
+                    <p id="history-window" class="text-lg font-mono font-bold text-teal-700">0.000 Wh</p>
+                </div>
+                <div class="rounded-lg border border-slate-800/60 bg-slate-950/30 p-3">
+                    <p class="text-[10px] text-slate-500 uppercase font-bold">Samples</p>
+                    <p id="history-samples" class="text-lg font-mono font-bold text-indigo-700">0</p>
+                </div>
+            </div>
+
+            <div class="h-52">
+                <canvas id="energyHistoryChart"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer
+        class="w-full max-w-5xl mx-auto px-6 md:px-0"
+    >
+        <div class="bg-slate-950/60 border border-slate-900/80 rounded-xl p-4 mb-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-slate-500">
+        <div class="flex items-center gap-6">
+            <span>
+                Temp:
+                <strong id="temp" class="text-slate-200 font-mono">
+                    --°C
+                </strong>
+            </span>
+
+            <span>
+                Humidity:
+                <strong id="hum" class="text-slate-200 font-mono">
+                    --%
+                </strong>
+            </span>
+        </div>
+
+        <div
+            class="text-[10px] uppercase font-bold tracking-widest bg-slate-900 px-3 py-1 rounded-md text-slate-400 border border-slate-800/40"
+        >
+            Theme:
+            <span class="text-amber-500">Into the Skies</span>
+        </div>
+        </div>
+    </footer>
+
+    <!-- Dashboard JavaScript -->
+    <script>
+        // Initialize the chart canvas.
+        const ctx = document
+            .getElementById("wattChart")
+            .getContext("2d");
+
+        const maxDataPoints = 45;
+        const liveTimelineStart = Date.now();
+
+        // Configure the chart data.
+        const chartData = {
+            labels: Array(maxDataPoints).fill(""),
+
+            datasets: [
+                {
+                    label: "Panel power",
+                    data: Array(maxDataPoints).fill(0),
+                    borderColor: "#2f806f",
+                    borderWidth: 2.5,
+                    backgroundColor: "rgba(47, 128, 111, 0.10)",
+                    fill: false,
+                    tension: 0.25,
+                    pointRadius: 2,
+                    pointBackgroundColor: "#7187c8",
+                    segment: {
+                        borderColor: (context) => {
+                            const start = context.p0.parsed.y;
+                            const end = context.p1.parsed.y;
+
+                            if (end > start) {
+                                return "#2f806f";
+                            }
+
+                            if (end < start) {
+                                return "#d97745";
+                            }
+
+                            return "#7187c8";
+                        }
+                    }
+                }
+            ]
+        };
+
+        // Create the live power chart.
+        const wattChart = new Chart(ctx, {
+            type: "line",
+
+            data: chartData,
+
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: "Elapsed time (seconds)",
+                            color: "#687386"
+                        },
+                        ticks: {
+                            color: "#687386",
+                            autoSkip: false,
+                            maxRotation: 0,
+                            callback: (value, index) => {
+                                const label = chartData.labels[index];
+                                return index % 5 === 0 && label
+                                    ? label + "s"
+                                    : "";
+                            }
+                        },
+                        grid: {
+                            color: "rgba(104, 115, 134, 0.15)"
+                        }
+                    },
+
+                    y: {
+                        title: {
+                            display: true,
+                            text: "Power (W)",
+                            color: "#687386"
+                        },
+                        grid: {
+                            color: "rgba(104, 115, 134, 0.25)"
+                        },
+
+                        ticks: {
+                            color: "#687386"
+                        },
+
+                        min: 0,
+                        max: 6
+                    }
+                }
+            }
+        });
+
+        const historyCtx = document
+            .getElementById("energyHistoryChart")
+            .getContext("2d");
+
+        const energyHistoryChart = new Chart(historyCtx, {
+            type: "line",
+            data: {
+                labels: [],
+                datasets: [{
+                    label: "Energy generated",
+                    data: [],
+                    borderColor: "#7187c8",
+                    backgroundColor: "rgba(113, 135, 200, 0.10)",
+                    borderWidth: 2.5,
+                    fill: true,
+                    tension: 0.25,
+                    pointRadius: 2,
+                    pointBackgroundColor: "#d97745"
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: "Time of day",
+                            color: "#687386"
+                        },
+                        ticks: {
+                            color: "#687386",
+                            maxTicksLimit: 8
+                        },
+                        grid: {
+                            color: "rgba(104, 115, 134, 0.15)"
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: "Energy generated (Wh)",
+                            color: "#687386"
+                        },
+                        beginAtZero: true,
+                        ticks: {
+                            color: "#687386",
+                            callback: (value) => value.toFixed(3) + " Wh"
+                        },
+                        grid: {
+                            color: "rgba(104, 115, 134, 0.25)"
+                        }
+                    }
+                }
+            }
+        });
+
+        async function loadEnergyHistory() {
+            const selectedRange =
+                document.getElementById("history-range").value;
+            const selectedView =
+                document.getElementById("history-view").value;
+            const timeOfDaySelect =
+                document.getElementById("time-of-day-range");
+            const response = await fetch(
+                "/energy-history?range=" + selectedRange +
+                "&view=" + selectedView +
+                "&time_range=" + timeOfDaySelect.value
+            );
+
+            if (!response.ok) {
+                throw new Error("Unable to load energy history.");
+            }
+
+            const history = await response.json();
+
+            if (selectedView === "average") {
+                const averageReadings = history.average_readings;
+
+                energyHistoryChart.data.labels = averageReadings.map(
+                    (reading) => {
+                        const hours = Math.floor(
+                            Number(reading.minute_of_day) / 60
+                        );
+                        const minutes = Number(reading.minute_of_day) % 60;
+                        return String(hours).padStart(2, "0") + ":" +
+                            String(minutes).padStart(2, "0");
+                    }
+                );
+                energyHistoryChart.data.datasets[0].data =
+                    averageReadings.map((reading) =>
+                        Number(reading.average_interval_wh)
+                    );
+                energyHistoryChart.data.datasets[0].label =
+                    "Average energy per sample (Wh)";
+                energyHistoryChart.options.scales.x.title.text =
+                    "Time of day";
+                energyHistoryChart.options.scales.y.title.text =
+                    "Average energy per sample (Wh)";
+                energyHistoryChart.options.scales.y.ticks.callback =
+                    (value) => value.toFixed(4) + " Wh";
+                energyHistoryChart.update("none");
+
+                document.getElementById("history-total").innerText =
+                    Number(history.total_wh).toFixed(3) + " Wh";
+                document.getElementById("history-window").innerText =
+                    "Average by time";
+                document.getElementById("history-samples").innerText =
+                    averageReadings.reduce(
+                        (total, reading) =>
+                            total + Number(reading.samples),
+                        0
+                    );
+                return;
+            }
+
+            const readings = history.readings;
+            const firstEnergy = readings.length
+                ? Number(readings[0].energy_wh)
+                : Number(history.total_wh);
+            const relativeEnergy = readings.map((reading) =>
+                Math.max(0, Number(reading.energy_wh) - firstEnergy)
+            );
+
+            energyHistoryChart.data.labels = readings.map((reading) =>
+                new Date(Number(reading.timestamp) * 1000).toLocaleTimeString(
+                    [],
+                    { hour: "numeric", minute: "2-digit" }
+                )
+            );
+            energyHistoryChart.data.datasets[0].data = relativeEnergy;
+            energyHistoryChart.data.datasets[0].label =
+                "Cumulative energy";
+            energyHistoryChart.options.scales.x.title.text =
+                "Time of day";
+            energyHistoryChart.options.scales.y.title.text =
+                "Energy generated (Wh)";
+            energyHistoryChart.update("none");
+
+            document.getElementById("history-total").innerText =
+                Number(history.total_wh).toFixed(3) + " Wh";
+
+            document.getElementById("history-window").innerText =
+                Number(history.window_wh).toFixed(3) + " Wh";
+
+            document.getElementById("history-samples").innerText =
+                readings.length;
+        }
+
+        document.getElementById("history-range").addEventListener(
+            "change",
+            loadEnergyHistory
+        );
+
+        document.getElementById("history-view").addEventListener(
+            "change",
+            () => {
+                const timeOfDaySelect =
+                    document.getElementById("time-of-day-range");
+                timeOfDaySelect.classList.toggle(
+                    "hidden",
+                    document.getElementById("history-view").value !==
+                        "average"
+                );
+                loadEnergyHistory();
+            }
+        );
+
+        document.getElementById("time-of-day-range").addEventListener(
+            "change",
+            loadEnergyHistory
+        );
+
+        loadEnergyHistory().catch((error) => {
+            console.error(error);
+        });
+
+        setInterval(() => {
+            loadEnergyHistory().catch((error) => {
+                console.error(error);
+            });
+        }, 10000);
+
+        // Connect to the Flask Server-Sent Events stream.
+        const eventSource = new EventSource("/stream");
+
+        // Update the connection status when connected.
+        eventSource.onopen = function () {
+            const badge = document.getElementById("status-badge");
+
+            if (!badge) {
+                return;
+            }
+
+            badge.innerText = "STREAM ONLINE";
+
+            badge.className =
+                "px-2.5 py-0.5 rounded-md text-[9px] font-black " +
+                "bg-emerald-950/80 text-emerald-400 " +
+                "border border-emerald-500/30 tracking-wider";
+        };
+
+        // Update the connection status if the stream fails.
+        eventSource.onerror = function () {
+            const badge = document.getElementById("status-badge");
+
+            if (!badge) {
+                return;
+            }
+
+            badge.innerText = "LINK DISRUPTED";
+
+            badge.className =
+                "px-2.5 py-0.5 rounded-md text-[9px] font-black " +
+                "bg-red-950/80 text-red-400 " +
+                "border border-red-500/30 tracking-wider";
+        };
+
+        // Process each incoming telemetry message.
+        eventSource.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+
+            // Update electrical and environmental readings.
+            document.getElementById("watts").innerText =
+                Number(data.w).toFixed(2);
+
+            document.getElementById("volts").innerText =
+                Number(data.v).toFixed(1) + "V";
+
+            document.getElementById("amps").innerText =
+                Number(data.ma).toFixed(0) + "mA";
+
+            document.getElementById("lux").innerText =
+                Number(data.lux).toLocaleString() + " lx";
+
+            document.getElementById("temp").innerText =
+                Number(data.t).toFixed(1) + "°C";
+
+            document.getElementById("hum").innerText =
+                Number(data.h).toFixed(0) + "%";
+
+            // Show the current commanded position of each tracking axis.
+            const panAngle = Math.max(0, Math.min(180, Number(data.pan)));
+            const tiltAngle = Math.max(0, Math.min(180, Number(data.tilt)));
+
+            document.getElementById("pan-angle").innerText =
+                panAngle.toFixed(1) + "°";
+
+            document.getElementById("tilt-angle").innerText =
+                tiltAngle.toFixed(1) + "°";
+
+            document.getElementById("pan-bar").style.width =
+                (panAngle / 180 * 100) + "%";
+
+            document.getElementById("tilt-bar").style.width =
+                (tiltAngle / 180 * 100) + "%";
+
+            // Update the four LDR sensor readings.
+            document.getElementById("v1").innerText = data.l1;
+            document.getElementById("v2").innerText = data.l2;
+            document.getElementById("v3").innerText = data.l3;
+            document.getElementById("v4").innerText = data.l4;
+
+            // Update the system status badge.
+            const badge = document.getElementById("status-badge");
+
+            if (badge) {
+                badge.innerText = data.status;
+
+                if (data.status === "ALIGNED") {
+                    badge.className =
+                        "px-2.5 py-0.5 rounded-md text-[9px] font-black " +
+                        "bg-emerald-950/80 text-emerald-400 " +
+                        "border border-emerald-500/30 tracking-wider";
+                } else {
+                    badge.className =
+                        "px-2.5 py-0.5 rounded-md text-[9px] font-black " +
+                        "bg-amber-950/80 text-amber-400 " +
+                        "border border-amber-500/30 " +
+                        "animate-pulse tracking-wider";
+                }
+            }
+
+            // Update the appearance of each LDR quadrant.
+            const ldrReadings = [
+                Number(data.l1),
+                Number(data.l2),
+                Number(data.l3),
+                Number(data.l4)
+            ];
+
+            const brightestReading = Math.max(...ldrReadings);
+
+            const updateQuadrantUI = (id, rawValue) => {
+                const element = document.getElementById(id);
+                const isBrightest =
+                    Number(rawValue) === brightestReading &&
+                    brightestReading > 450;
+
+                const normalizedLight = Math.max(
+                    0,
+                    Math.min(1, Number(rawValue) / 1023)
+                );
+
+                element.style.backgroundColor =
+                    `rgba(245, 158, 11, ${normalizedLight * 0.75})`;
+
+                element.style.color =
+                    normalizedLight > 0.45
+                        ? "#243047"
+                        : "#687386";
+
+                element.classList.toggle(
+                    "quadrant-bright",
+                    isBrightest
+                );
+            };
+
+            updateQuadrantUI("q1", data.l1);
+            updateQuadrantUI("q2", data.l2);
+            updateQuadrantUI("q3", data.l3);
+            updateQuadrantUI("q4", data.l4);
+
+            // Add the newest wattage reading to the chart.
+            chartData.labels.push(
+                ((Date.now() - liveTimelineStart) / 1000).toFixed(0)
+            );
+            chartData.labels.shift();
+            chartData.datasets[0].data.push(Number(data.w));
+            chartData.datasets[0].data.shift();
+
+            // Refresh the chart without animation.
+            wattChart.update("none");
+        };
+    </script>
+
+</body>
+</html>
